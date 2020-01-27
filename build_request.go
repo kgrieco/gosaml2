@@ -9,12 +9,12 @@ import (
 	"net/url"
 
 	"github.com/beevik/etree"
-	"github.com/russellhaering/gosaml2/uuid"
+	"github.com/kgrieco/gosaml2/uuid"
 )
 
 const issueInstantFormat = "2006-01-02T15:04:05Z"
 
-func (sp *SAMLServiceProvider) buildAuthnRequest(includeSig bool) (*etree.Document, error) {
+func (sp *SAMLServiceProvider) buildAuthnRequest(includeSig bool, reqId string) (*etree.Document, error) {
 	authnRequest := &etree.Element{
 		Space: "samlp",
 		Tag:   "AuthnRequest",
@@ -23,9 +23,11 @@ func (sp *SAMLServiceProvider) buildAuthnRequest(includeSig bool) (*etree.Docume
 	authnRequest.CreateAttr("xmlns:samlp", "urn:oasis:names:tc:SAML:2.0:protocol")
 	authnRequest.CreateAttr("xmlns:saml", "urn:oasis:names:tc:SAML:2.0:assertion")
 
-	arId := uuid.NewV4()
+	if reqId == "" {
+		reqId = uuid.NewV4().String()
+	}
 
-	authnRequest.CreateAttr("ID", "_"+arId.String())
+	authnRequest.CreateAttr("ID", "_"+reqId)
 	authnRequest.CreateAttr("Version", "2.0")
 	authnRequest.CreateAttr("ProtocolBinding", "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST")
 	authnRequest.CreateAttr("AssertionConsumerServiceURL", sp.AssertionConsumerServiceURL)
@@ -71,12 +73,12 @@ func (sp *SAMLServiceProvider) buildAuthnRequest(includeSig bool) (*etree.Docume
 	return doc, nil
 }
 
-func (sp *SAMLServiceProvider) BuildAuthRequestDocument() (*etree.Document, error) {
-	return sp.buildAuthnRequest(true)
+func (sp *SAMLServiceProvider) BuildAuthRequestDocument(reqId string) (*etree.Document, error) {
+	return sp.buildAuthnRequest(true, reqId)
 }
 
-func (sp *SAMLServiceProvider) BuildAuthRequestDocumentNoSig() (*etree.Document, error) {
-	return sp.buildAuthnRequest(false)
+func (sp *SAMLServiceProvider) BuildAuthRequestDocumentNoSig(reqId string) (*etree.Document, error) {
+	return sp.buildAuthnRequest(false, reqId)
 }
 
 // SignAuthnRequest takes a document, builds a signature, creates another document
@@ -104,8 +106,8 @@ func (sp *SAMLServiceProvider) SignAuthnRequest(el *etree.Element) (*etree.Eleme
 }
 
 // BuildAuthRequest builds <AuthnRequest> for identity provider
-func (sp *SAMLServiceProvider) BuildAuthRequest() (string, error) {
-	doc, err := sp.BuildAuthRequestDocument()
+func (sp *SAMLServiceProvider) BuildAuthRequest(reqId string) (string, error) {
+	doc, err := sp.BuildAuthRequestDocument(reqId)
 	if err != nil {
 		return "", err
 	}
@@ -175,7 +177,7 @@ func (sp *SAMLServiceProvider) BuildAuthURLRedirect(relayState string, doc *etre
 
 // BuildAuthURL builds redirect URL to be sent to principal
 func (sp *SAMLServiceProvider) BuildAuthURL(relayState string) (string, error) {
-	doc, err := sp.BuildAuthRequestDocument()
+	doc, err := sp.BuildAuthRequestDocument("")
 	if err != nil {
 		return "", err
 	}

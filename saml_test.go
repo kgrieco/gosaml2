@@ -16,7 +16,7 @@ import (
 	"testing"
 
 	"github.com/beevik/etree"
-	"github.com/russellhaering/gosaml2/types"
+	"github.com/kgrieco/gosaml2/types"
 	dsig "github.com/russellhaering/goxmldsig"
 	"github.com/stretchr/testify/require"
 )
@@ -139,7 +139,7 @@ func TestSAML(t *testing.T) {
 	require.NoError(t, err)
 	require.NotEmpty(t, authRequestURL)
 
-	authRequestString, err := sp.BuildAuthRequest()
+	authRequestString, err := sp.BuildAuthRequest("")
 	require.NoError(t, err)
 	require.NotEmpty(t, authRequestString)
 

@@ -74,7 +74,7 @@ func TestRequestedAuthnContextOmitted(t *testing.T) {
 		SignAuthnRequests:           false,
 	}
 
-	request, err := sp.BuildAuthRequest()
+	request, err := sp.BuildAuthRequest("")
 	require.NoError(t, err)
 
 	doc := etree.NewDocument()
@@ -101,7 +101,7 @@ func TestRequestedAuthnContextIncluded(t *testing.T) {
 		SignAuthnRequests: false,
 	}
 
-	request, err := sp.BuildAuthRequest()
+	request, err := sp.BuildAuthRequest("")
 	require.NoError(t, err)
 
 	doc := etree.NewDocument()

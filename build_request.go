@@ -24,10 +24,10 @@ func (sp *SAMLServiceProvider) buildAuthnRequest(includeSig bool, reqId string) 
 	authnRequest.CreateAttr("xmlns:saml", "urn:oasis:names:tc:SAML:2.0:assertion")
 
 	if reqId == "" {
-		reqId = uuid.NewV4().String()
+		reqId = fmt.Sprintf("_%s", uuid.NewV4().String())
 	}
 
-	authnRequest.CreateAttr("ID", "_"+reqId)
+	authnRequest.CreateAttr("ID", reqId)
 	authnRequest.CreateAttr("Version", "2.0")
 	authnRequest.CreateAttr("ProtocolBinding", "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST")
 	authnRequest.CreateAttr("AssertionConsumerServiceURL", sp.AssertionConsumerServiceURL)
